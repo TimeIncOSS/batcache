@@ -1,7 +1,7 @@
 {
-    "name"       : "automattic/batcache",
-    "description": "A memcached HTML page cache for WordPress.",
-    "homepage"   : "https://github.com/Automattic/batcache",
+    "name"       : "timeincoss/batcache",
+    "description": "A memcached HTML page cache for WordPress (TimeInc fork version).",
+    "homepage"   : "https://github.com/TimeIncOSS/batcache",
     "type"       : "wordpress-muplugin",
     "license"    : "GPL-2.0+",
     "support"    : {
