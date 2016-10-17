@@ -231,12 +231,12 @@ class batcache {
 				header("Cache-Control: max-age=$this->max_age, must-revalidate", false);
 		}
 
-		$this->do_headers( $this->headers );
-
 		// Add some debug info just before <head
 		if ( $this->debug ) {
 			$this->add_debug_just_cached();
 		}
+
+		$this->do_headers( $this->headers );
 
 		// Pass output to next ob handler
 		batcache_stats( 'batcache', 'total_page_views' );
