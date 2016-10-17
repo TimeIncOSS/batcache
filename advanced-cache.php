@@ -74,7 +74,7 @@ class batcache {
 	var $genlock = false;
 	var $do = false;
 
-	function batcache( $settings ) {
+	function __construct( $settings ) {
 		if ( is_array( $settings ) ) foreach ( $settings as $k => $v )
 			$this->$k = $v;
 	}
@@ -272,33 +272,29 @@ class batcache {
 	}
 
 	function add_debug_just_cached() {
-		$generation = $this->cache['timer'];
-		$bytes = strlen( serialize( $this->cache ) );
-		$html = <<<HTML
-<!--
-	generated in $generation seconds
-	$bytes bytes batcached for {$this->max_age} seconds
--->
-
-HTML;
-		$this->add_debug_html_to_output( $html );
+		if ( isset ( $_SERVER['HTTP_BATCACHE_DEBUG'] ) ) {
+			$this->headers['X-Batcache-Generated-Ago'] = 'now';
+			$this->headers['X-Batcache-Generated'] = $this->cache['timer'] . ' second(s)';
+			$this->headers['X-Batcache-Expires'] = $this->max_age . ' second(s)';
+			$this->headers['X-Batcache-PageKey'] = $this->url_key;
+			$this->headers['X-Batcache-PageVersion'] = $this->url_version;
+			$this->headers['X-Batcache-CacheSizeBytes'] = strlen( serialize( $this->cache ) );
+		}
 	}
 
 	function add_debug_from_cache() {
-		$seconds_ago = time() - $this->cache['time'];
-		$generation = $this->cache['timer'];
-		$serving = $this->timer_stop( false, 3 );
-		$expires = $this->cache['max_age'] - time() + $this->cache['time'];
-		$html = <<<HTML
-<!--
-	generated $seconds_ago seconds ago
-	generated in $generation seconds
-	served from batcache in $serving seconds
-	expires in $expires seconds
--->
-
-HTML;
-		$this->add_debug_html_to_output( $html );
+		if ( isset ( $_SERVER['HTTP_BATCACHE_DEBUG'] ) ) {
+			$seconds_ago = time() - $this->cache['time'];
+			$generation = $this->cache['timer'];
+			$serving = $this->timer_stop( false, 3 );
+			$expires = $this->cache['max_age'] - time() + $this->cache['time'];
+			$this->headers['X-Batcache-Generated-Ago'] = $seconds_ago . ' second(s) ago';
+			$this->headers['X-Batcache-Generated'] = $generation . ' second(s)';
+			$this->headers['X-Batcache-Served'] = $serving .  ' second(s)';
+			$this->headers['X-Batcache-Expires'] = $expires . ' second(s)';
+			$this->headers['X-Batcache-PageKey'] = $this->url_key;
+			$this->headers['X-Batcache-PageVersion'] = $this->url_version;
+		}
 	}
 
 	function add_debug_html_to_output( $debug_html ) {
